@@ -77,10 +77,19 @@ Image Art Converter/
 ├── tests/
 │   ├── conftest.py           # Фикстуры pytest
 │   └── test_processing.py    # Тесты алгоритмов (46 тестов)
-├── assets/                   # Зарезервировано для локальных ресурсов интерфейса
 └── docs/
-    └── screenshots/          # Скриншоты интерфейса
+    └── screenshots/
+        ├── interface.png     # Начальный интерфейс, снят с запущенного приложения
+        └── grayscale.png     # Оригинал и результат в оттенках серого, снято live
 ```
+
+## Скриншоты
+
+Снято с запущенного приложения Streamlit в headless Chromium (1600×1000):
+
+![Начальный интерфейс](docs/screenshots/interface.png)
+
+![Оригинальное изображение и результат в оттенках серого](docs/screenshots/grayscale.png)
 
 ## Установка
 

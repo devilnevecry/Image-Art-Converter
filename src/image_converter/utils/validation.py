@@ -39,7 +39,6 @@ def validate_image(file_bytes: bytes) -> Tuple[Image.Image, str]:
 
     try:
         image = Image.open(io.BytesIO(file_bytes))
-        image.load()  # форсируем чтение для обнаружения повреждений
     except UnidentifiedImageError:
         raise ImageValidationError("Не удалось определить формат изображения.")
     except Exception as exc:  # noqa: BLE001
@@ -51,7 +50,9 @@ def validate_image(file_bytes: bytes) -> Tuple[Image.Image, str]:
             f"Формат '{fmt}' не поддерживается. Доступны: {', '.join(sorted(SUPPORTED_FORMATS))}."
         )
 
-    # Проверка количества пикселей
+    # Проверка количества пикселей ДО декомпрессии. Размеры доступны из заголовка
+    # сразу после Image.open(), поэтому небольшой сжатый файл с огромными
+    # измерениями отклоняется до выделения памяти под пиксели.
     width, height = image.size
     total_pixels = width * height
     if total_pixels > MAX_PIXELS:
@@ -59,5 +60,12 @@ def validate_image(file_bytes: bytes) -> Tuple[Image.Image, str]:
             f"Изображение слишком большое ({total_pixels:,} пикселей). "
             f"Максимум: {MAX_PIXELS:,} пикселей."
         )
+
+    try:
+        image.load()  # форсируем чтение для обнаружения повреждений
+    except UnidentifiedImageError:
+        raise ImageValidationError("Не удалось определить формат изображения.")
+    except Exception as exc:  # noqa: BLE001
+        raise ImageValidationError(f"Повреждённый или некорректный файл: {exc}")
 
     return image, fmt
